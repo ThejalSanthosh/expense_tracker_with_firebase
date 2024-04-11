@@ -44,6 +44,7 @@ class _IncomeTabState extends State<IncomeTab> {
                     ),
                     TextFormField(
                       controller: textAmountController,
+                      keyboardType: TextInputType.number,
                       decoration: InputDecoration(
                           hintText: "Enter Amount",
                           border: OutlineInputBorder(
@@ -64,7 +65,7 @@ class _IncomeTabState extends State<IncomeTab> {
                     ),
                     DropdownButton(
                       value: selectedDropDown,
-                      hint: Text("Category"),
+                      hint: Text("Select"),
                       isExpanded: true,
                       style: TextStyle(color: ColorConstants.primaryBlack),
                       elevation: 10,
@@ -100,7 +101,7 @@ class _IncomeTabState extends State<IncomeTab> {
                       onTap: () async {
                         var selectedDate = await showDatePicker(
                             context: context,
-                            firstDate: DateTime.now(),
+                            firstDate: DateTime(2024),
                             lastDate: DateTime(2025));
                         textDateController.text = selectedDate.toString();
 
@@ -123,7 +124,6 @@ class _IncomeTabState extends State<IncomeTab> {
                     SizedBox(
                       height: 15,
                     ),
-                   
                     Text("Note"),
                     SizedBox(
                       height: 5,
@@ -148,22 +148,46 @@ class _IncomeTabState extends State<IncomeTab> {
                       child: ElevatedButton(
                         onPressed: () {
                           if (formKey.currentState!.validate()) {
-                            IncomeExpenseModel incomeExpenseModel =
-                                IncomeExpenseModel(
-                                    amount: textAmountController.text,
-                                    category: selectedDropDown.toString(),
-                                    date: textDateController.text,
-                                    note: textNoteController.text,
-                                    isIncome: true);
-                            context
-                                .read<IncomeExpenseController>()
-                                .addData(incomeExpenseModel);
-                            selectedDropDown = null;
-                            textAmountController.clear();
+                            showDialog(
+                              context: context,
+                              barrierDismissible: false,
+                              builder: (context) => AlertDialog(
+                                title: Text(
+                                  "Income Details Added Successfully",
+                                  style: TextStyle(fontSize: 20),
+                                ),
+                                actions: [
+                                  TextButton(
+                                      onPressed: () {
+                                        IncomeExpenseModel incomeExpenseModel =
+                                            IncomeExpenseModel(
+                                                amount:
+                                                    textAmountController.text,
+                                                category:
+                                                    selectedDropDown.toString(),
+                                                date: textDateController.text,
+                                                note: textNoteController.text,
+                                                isIncome: true);
+                                        context
+                                            .read<IncomeExpenseController>()
+                                            .addData(incomeExpenseModel);
+                                        selectedDropDown = null;
+                                        textAmountController.clear();
 
-                            textDateController.clear();
+                                        textDateController.clear();
 
-                            textNoteController.clear();
+                                        textNoteController.clear();
+                                        Navigator.pop(context);
+                                      },
+                                      child: Text("OK")),
+                                  TextButton(
+                                      onPressed: () {
+                                        Navigator.pop(context);
+                                      },
+                                      child: Text("NO"))
+                                ],
+                              ),
+                            );
                           }
                         },
                         style: ElevatedButton.styleFrom(

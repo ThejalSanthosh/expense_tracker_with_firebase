@@ -9,6 +9,7 @@ class IncomeExpenseController with ChangeNotifier {
   static List<Map<String, Object?>> lstData = [];
   static List<IncomeExpenseModel> lstIncomeExpenseModelData = [];
   var incomeAmount;
+  var expenseAmount;
 
   static Future<void> initDb() async {
     database = await openDatabase("tracker.db", version: 1,
@@ -31,6 +32,9 @@ class IncomeExpenseController with ChangeNotifier {
           incomeExpenseModel.isIncome
         ]);
     await getData();
+
+    await totalIncomeSum();
+    await totalExpenseSum();
     notifyListeners();
   }
 
@@ -48,8 +52,6 @@ class IncomeExpenseController with ChangeNotifier {
             isIncome: e["IsIncome"].toString() == "1" ? true : false))
         .toList();
 
-    // log(lstData.toString());
-
     notifyListeners();
   }
 
@@ -59,5 +61,13 @@ class IncomeExpenseController with ChangeNotifier {
         ['SUM(amount)'];
     notifyListeners();
     log(incomeAmount.toString());
+  }
+
+  Future totalExpenseSum() async {
+    expenseAmount = (await database.rawQuery(
+            "SELECT SUM(amount) FROM RecordTracker WHERE IsIncome = 0"))[0]
+        ['SUM(amount)'];
+    notifyListeners();
+    log(expenseAmount.toString());
   }
 }

@@ -44,6 +44,7 @@ class _ExpenseTabState extends State<ExpenseTab> {
                     ),
                     TextFormField(
                       controller: textAmountController,
+                      keyboardType: TextInputType.number,
                       decoration: InputDecoration(
                           hintText: "Enter Amount",
                           border: OutlineInputBorder(
@@ -64,7 +65,7 @@ class _ExpenseTabState extends State<ExpenseTab> {
                     ),
                     DropdownButton(
                       value: selectedDropDown,
-                      hint: Text("Category"),
+                      hint: Text("Select"),
                       isExpanded: true,
                       style: TextStyle(color: ColorConstants.primaryBlack),
                       elevation: 10,
@@ -76,6 +77,14 @@ class _ExpenseTabState extends State<ExpenseTab> {
                         DropdownMenuItem(
                           child: Text("Shopping"),
                           value: "Shopping",
+                        ),
+                        DropdownMenuItem(
+                          child: Text("Petrol"),
+                          value: "Petrol",
+                        ),
+                        DropdownMenuItem(
+                          child: Text("Recharge"),
+                          value: "Recharge",
                         )
                       ],
                       onChanged: (value) {
@@ -98,15 +107,25 @@ class _ExpenseTabState extends State<ExpenseTab> {
                           border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(10))),
                       onTap: () async {
-                        final selectedDate = await showDatePicker(
+                        var selectedDate = await showDatePicker(
                             context: context,
-                            firstDate: DateTime.now(),
+                            firstDate: DateTime(2024),
                             lastDate: DateTime(2025));
                         textDateController.text = selectedDate.toString();
 
                         if (selectedDate != null) {
-                          String formateDate =
-                              DateFormat("dd-MMM-yyyy").format(selectedDate);
+                          final selectedTime = await showTimePicker(
+                              context: context, initialTime: TimeOfDay.now());
+                          if (selectedTime != null) {
+                            selectedDate = selectedDate.add(Duration(
+                                hours: selectedTime.hour,
+                                minutes: selectedTime.minute));
+                          }
+                        }
+
+                        if (selectedDate != null) {
+                          String formateDate = DateFormat("dd-MMM-yyyy hh:mm a")
+                              .format(selectedDate);
 
                           textDateController.text = formateDate.toString();
                           setState(() {});
@@ -140,22 +159,50 @@ class _ExpenseTabState extends State<ExpenseTab> {
                       child: ElevatedButton(
                         onPressed: () {
                           if (formKey.currentState!.validate()) {
-                            IncomeExpenseModel incomeExpenseModel =
-                                IncomeExpenseModel(
-                                    amount: textAmountController.text,
-                                    category: selectedDropDown.toString(),
-                                    date: textDateController.text,
-                                    note: textNoteController.text,
-                                    isIncome: false);
-                            context
-                                .read<IncomeExpenseController>()
-                                .addData(incomeExpenseModel);
-                            selectedDropDown = null;
-                            textAmountController.clear();
+                            showDialog(
+                                context: context,
+                                barrierDismissible: false,
+                                builder: (context) => AlertDialog(
+                                      title: Text(
+                                        "Expense Details Added Successfully",
+                                        style: TextStyle(fontSize: 20),
+                                      ),
+                                      actions: [
+                                        TextButton(
+                                            onPressed: () {
+                                              IncomeExpenseModel
+                                                  incomeExpenseModel =
+                                                  IncomeExpenseModel(
+                                                      amount:
+                                                          textAmountController
+                                                              .text,
+                                                      category: selectedDropDown
+                                                          .toString(),
+                                                      date: textDateController
+                                                          .text,
+                                                      note: textNoteController
+                                                          .text,
+                                                      isIncome: false);
+                                              context
+                                                  .read<
+                                                      IncomeExpenseController>()
+                                                  .addData(incomeExpenseModel);
+                                              selectedDropDown = null;
+                                              textAmountController.clear();
 
-                            textDateController.clear();
+                                              textDateController.clear();
 
-                            textNoteController.clear();
+                                              textNoteController.clear();
+                                              Navigator.pop(context);
+                                            },
+                                            child: Text("OK")),
+                                        TextButton(
+                                            onPressed: () {
+                                              Navigator.pop(context);
+                                            },
+                                            child: Text("NO"))
+                                      ],
+                                    ));
                           }
                         },
                         style: ElevatedButton.styleFrom(

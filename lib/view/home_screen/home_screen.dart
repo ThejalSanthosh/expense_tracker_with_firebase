@@ -19,6 +19,8 @@ class _HomeScreenState extends State<HomeScreen> {
     Provider.of<IncomeExpenseController>(context, listen: false).getData();
     Provider.of<IncomeExpenseController>(context, listen: false)
         .totalIncomeSum();
+    Provider.of<IncomeExpenseController>(context, listen: false)
+        .totalExpenseSum();
     return SafeArea(
       child: Scaffold(
         backgroundColor: ColorConstants.primaryWhite,
@@ -40,7 +42,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       CircleAvatar(
                         radius: 20,
                         backgroundImage: NetworkImage(
-                            "https://instagram.fcok4-1.fna.fbcdn.net/v/t51.2885-19/395308835_3463668007277756_5707619813024977731_n.jpg?stp=dst-jpg_s320x320&_nc_ht=instagram.fcok4-1.fna.fbcdn.net&_nc_cat=108&_nc_ohc=EX4gXXAtI40Ab4dB-My&edm=AOQ1c0wBAAAA&ccb=7-5&oh=00_AfBYszPTsHXgykaGbhrTsjnMEfmgHC6KMhJU3c6aia5o5w&oe=6616E2C2&_nc_sid=8b3546"),
+                            "https://instagram.fcok4-1.fna.fbcdn.net/v/t51.2885-19/395308835_3463668007277756_5707619813024977731_n.jpg?stp=dst-jpg_s320x320&_nc_ht=instagram.fcok4-1.fna.fbcdn.net&_nc_cat=108&_nc_ohc=iNPoLNkafw8Ab4HYJdE&edm=AOQ1c0wBAAAA&ccb=7-5&oh=00_AfBA6HooIkNoi9IGbrPOdZ5l3T_0Y1OESSjsCytH80gqJg&oe=661DB282&_nc_sid=8b3546"),
                       ),
                       SizedBox(
                         width: 15,
@@ -82,12 +84,14 @@ class _HomeScreenState extends State<HomeScreen> {
                   SizedBox(
                     height: 2,
                   ),
-                  Text(
-                    "\$243",
-                    style: TextStyle(
-                        color: ColorConstants.primaryWhite,
-                        fontSize: 26,
-                        fontWeight: FontWeight.bold),
+                  Consumer<IncomeExpenseController>(
+                    builder: (context, value, child) => Text(
+                      "\$${value.incomeAmount - value.expenseAmount}",
+                      style: TextStyle(
+                          color: ColorConstants.primaryWhite,
+                          fontSize: 26,
+                          fontWeight: FontWeight.bold),
+                    ),
                   ),
                   SizedBox(
                     height: 25,
@@ -102,7 +106,8 @@ class _HomeScreenState extends State<HomeScreen> {
                             Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) => IncomeExpenseScreen(),
+                                  builder: (context) =>
+                                      IncomeExpenseScreen(initialTabIndex: 0),
                                 ));
                           },
                           child: Consumer<IncomeExpenseController>(
@@ -118,10 +123,22 @@ class _HomeScreenState extends State<HomeScreen> {
                         width: 15,
                       ),
                       Expanded(
-                        child: CustomContainerCard(
-                            title: "Expense",
-                            amount: "\$444",
-                            color: ColorConstants.primaryRed),
+                        child: Consumer<IncomeExpenseController>(
+                          builder: (context, value, child) => InkWell(
+                            onTap: () {
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) =>
+                                        IncomeExpenseScreen(initialTabIndex: 1),
+                                  ));
+                            },
+                            child: CustomContainerCard(
+                                title: "Expense",
+                                amount: "\$${value.expenseAmount}",
+                                color: ColorConstants.primaryRed),
+                          ),
+                        ),
                       )
                     ],
                   )
@@ -146,7 +163,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     SizedBox(
                       height: 350,
                       child: Consumer<IncomeExpenseController>(
-                        builder: (context, value, child) =>  ListView.separated(
+                        builder: (context, value, child) => ListView.separated(
                             itemBuilder: (context, index) => CustomListviewCard(
                                 category: IncomeExpenseController
                                     .lstIncomeExpenseModelData[index].category,
