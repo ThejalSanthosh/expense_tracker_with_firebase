@@ -9,7 +9,7 @@ class CustomContainerCard extends StatelessWidget {
       required this.color});
 
   final String title;
-  final String amount;
+  final double amount;
   final Color color;
 
   @override
@@ -53,7 +53,7 @@ class CustomContainerCard extends StatelessWidget {
              height: 2,
            ),
            Text(
-             amount,
+             amount.toStringAsFixed(2),
              maxLines: 2,
              overflow: TextOverflow.ellipsis,
              style: TextStyle(

@@ -1,19 +1,20 @@
+import 'package:expense_tracker/controller/tab_screen_controller.dart';
 import 'package:expense_tracker/core/constants/color_constants.dart';
 import 'package:expense_tracker/view/income_expense_screen/tabs/tab_expense.dart';
 import 'package:expense_tracker/view/income_expense_screen/tabs/tab_income.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class IncomeExpenseScreen extends StatelessWidget {
-   IncomeExpenseScreen({super.key,required this.initialTabIndex
+   IncomeExpenseScreen({super.key,
    });
 
-  final int initialTabIndex;
 
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
       length: 2,
-      initialIndex: initialTabIndex,
+      initialIndex: context.read<TabScreenController>().tabIndex,
       child: Scaffold(
         appBar: AppBar(
           title: Text(
@@ -29,7 +30,10 @@ class IncomeExpenseScreen extends StatelessWidget {
             children: [
               Container(
                 child: TabBar(
-                
+                  
+                onTap: (value) {
+                  context.read<TabScreenController>().onTabChanged();
+                },
                   indicatorSize: TabBarIndicatorSize.tab,
                   labelColor: Colors.white,
                   unselectedLabelColor: Colors.black.withOpacity(0.4),
